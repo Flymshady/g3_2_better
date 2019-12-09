@@ -52,7 +52,7 @@ public class Renderer extends AbstractRenderer{
     private boolean persp=true;
     private int mode=1;
     private int modeLoc;
-    private String modeString="[Texture]";
+    private String modeString="geom & tessel";
     private String projString = "[Perps]";
     private String lineString="[Fill]";
     private int attenuation=1;
@@ -76,11 +76,13 @@ public class Renderer extends AbstractRenderer{
     private int inner_nmb = 1;
     private int outer_nmb = 1;
     private int locInner_nmb, locOuter_nmb;
+    private boolean modeChange = false;
 
     public void init() {
         glClearColor(0.1f, 0.1f, 0.1f, 1);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
+
         shaderProgram = ShaderUtils.loadProgram("/tessel");
         shaderProgramLight = ShaderUtils.loadProgram("/light");
         locView = glGetUniformLocation(shaderProgram, "view");
@@ -130,6 +132,16 @@ public class Renderer extends AbstractRenderer{
     }
     public void display(){
 
+        if(modeChange) {
+            if (mode == 1) {
+                shaderProgram = ShaderUtils.loadProgram("/tessel.vert", "/tessel.frag", "/tessel.geom", "/tessel.tesc", "/tessel.tese", null);
+            }
+            if (mode == 2) {
+                shaderProgram = ShaderUtils.loadProgram("/tessel.vert", "/tessel.frag", null, "/tessel.tesc", "/tessel.tese", null);
+            }
+            modeChange=false;
+        }
+
         if(time>1000f) time=0.1f;
         time += 0.1;
 
@@ -139,12 +151,12 @@ public class Renderer extends AbstractRenderer{
         textRenderer.clear();
         String text = "Camera - WSAD, L_SHIFT, L_CTRL, Q, E, SPACE, LMB, Scroll";
         String text1 = "Fill/Line - L : "+lineString+";Inner_nmb "+inner_nmb+"; Outer_nmb "+outer_nmb;
-        String text2 =  "Mode - 1 - 8: "+mode+"="+modeString+"; Blinn-Phong - H: "+blinn_phongS +"; Attenuation - J: "+attenuationString+"; Spotlight - K :"+spotlightString;
+        String text2 =  "Mode - 1 - 2: "+mode+"="+modeString;
         String text3 = "Persp/Orto projection - P: "+projString+"; Resizable window";
         textRenderer.addStr2D(3, height-3, text);
         textRenderer.addStr2D(3, height-15, text1);
        // textRenderer.addStr2D(3, height-27, text3);
-      //  textRenderer.addStr2D(3, height-39, text2);
+        textRenderer.addStr2D(3, height-39, text2);
         textRenderer.addStr2D(width-170, height-3, "Štěpán Cellar - PGRF3 - 2019");
         textRenderer.draw();
 
@@ -344,6 +356,17 @@ public class Renderer extends AbstractRenderer{
                             inner_nmb--;
                         }
 
+                        break;
+                    case GLFW_KEY_M:
+                        if (mode == 1) {
+                            modeString="tessel";
+                            mode=2;
+                            modeChange=true;
+                        }else{
+                            modeString="geom & tessel";
+                            mode=1;
+                            modeChange=true;
+                        }
                         break;
 
                 }

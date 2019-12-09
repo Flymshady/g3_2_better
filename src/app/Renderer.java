@@ -73,6 +73,9 @@ public class Renderer extends AbstractRenderer{
     private int blinn_phong=1;
     private String blinn_phongS="[On]";
     private boolean line = false;
+    private int inner_nmb = 1;
+    private int outer_nmb = 1;
+    private int locInner_nmb, locOuter_nmb;
 
     public void init() {
         glClearColor(0.1f, 0.1f, 0.1f, 1);
@@ -84,6 +87,10 @@ public class Renderer extends AbstractRenderer{
         locProjection = glGetUniformLocation(shaderProgram, "projection");
         locType=  glGetUniformLocation(shaderProgram, "type");
         locTime =  glGetUniformLocation(shaderProgram, "time");
+
+        locInner_nmb =  glGetUniformLocation(shaderProgram, "inner_nmb");
+        locOuter_nmb =  glGetUniformLocation(shaderProgram, "outer_nmb");
+
         locModel = glGetUniformLocation(shaderProgram, "model");
         locViewLight = glGetUniformLocation(shaderProgramLight, "view");
         locProjectionLight = glGetUniformLocation(shaderProgramLight, "projection");
@@ -95,7 +102,7 @@ public class Renderer extends AbstractRenderer{
         locSpotlight =  glGetUniformLocation(shaderProgram, "spotlight");
         locLightVP = glGetUniformLocation(shaderProgram, "lightViewProjection");
         locAttenuation=glGetUniformLocation(shaderProgram, "attenuation");
-        buffers = GridFactory.generateGrid(100,100);
+        buffers = GridFactory.generateGrid(10,10);
         renderTarget = new OGLRenderTarget(1024,1024);
         modeLoc =  glGetUniformLocation(shaderProgram, "mode");
         viewer = new OGLTexture2D.Viewer();
@@ -122,27 +129,7 @@ public class Renderer extends AbstractRenderer{
 
     }
     public void display(){
-        if(mode==7||mode==8){
-            buffers = GridFactory.generateGrid(10,10);
-        }else{
-            buffers = GridFactory.generateGrid(100,100);
-        }
-        //object rotation
-        if(rot1B) {
-            if(rot1>100f) rot1=0.01f;
-            rot1 += 0.01;
-        }
-        else{
-            rot1+=0;
-        }
-        //light "sun" rotation
-        if(rotLightB) {
-            if(rotLight>100f) rotLight=rotLSpeedBonus;
-            rotLight +=rotLSpeedBonus;
-        }
-        else{
-            rotLight+=0;
-        }
+
         if(time>1000f) time=0.1f;
         time += 0.1;
 
@@ -151,11 +138,11 @@ public class Renderer extends AbstractRenderer{
 
         textRenderer.clear();
         String text = "Camera - WSAD, L_SHIFT, L_CTRL, Q, E, SPACE, LMB, Scroll";
-        String text1 = "Fill/Line - L : "+lineString+"; Object rotation - U : "+rot1String+"; Light rotation - I : "+rotLString +"; Light rotation speed - ARROW_UP/DOWN";
+        String text1 = "Fill/Line - L : "+lineString+";Inner_nmb "+inner_nmb+"; Outer_nmb "+outer_nmb;
         String text2 =  "Mode - 1 - 8: "+mode+"="+modeString+"; Blinn-Phong - H: "+blinn_phongS +"; Attenuation - J: "+attenuationString+"; Spotlight - K :"+spotlightString;
         String text3 = "Persp/Orto projection - P: "+projString+"; Resizable window";
         textRenderer.addStr2D(3, height-3, text);
-      //  textRenderer.addStr2D(3, height-15, text1);
+        textRenderer.addStr2D(3, height-15, text1);
        // textRenderer.addStr2D(3, height-27, text3);
       //  textRenderer.addStr2D(3, height-39, text2);
         textRenderer.addStr2D(width-170, height-3, "Štěpán Cellar - PGRF3 - 2019");
@@ -171,7 +158,6 @@ public class Renderer extends AbstractRenderer{
         Vec3D light = new Vec3D(0, 0, 15).mul(new Mat3RotY(rotLight));
         glUniform3f(lightPos,(float)light.getX(), (float)light.getY(), (float)light.getZ());
         glUniform1i(modeLoc, mode);
-        glUniform1i(locBlinn_Phong, blinn_phong);
         glUseProgram(shaderProgramLight);
 
         renderTarget.bind();
@@ -235,18 +221,13 @@ public class Renderer extends AbstractRenderer{
         glViewport(0,0, width, height);
         glClearColor(0.5f,0f,0f,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUniform1i(locAttenuation, attenuation);
-        glUniform1i(locSpotlight, spotlight);
 
         Vec3D light = new Vec3D(0, 0, 15).mul(new Mat3RotY(rotLight));
         glUniform3f(lightPos,(float)light.getX(), (float)light.getY(), (float)light.getZ());
 
         glUniformMatrix4fv(locView, false, camera.getViewMatrix().floatArray());
-        if(persp) {
-            glUniformMatrix4fv(locProjection, false, projection.floatArray());
-        }else {
-            glUniformMatrix4fv(locProjection, false, projectionOH.floatArray());
-        }
+        glUniformMatrix4fv(locProjection, false, projection.floatArray());
+
 
         Mat4 matMVPlight =  new Mat4ViewRH(light, light.mul(-1), new Vec3D(0,1,0))
                 .mul(new Mat4OrthoRH(10,10,1,20));
@@ -256,7 +237,10 @@ public class Renderer extends AbstractRenderer{
         texture1.bind(shaderProgram, "res/texture/mosaic.jpg",0);
 
         glUniform1f(locTime, time);
-
+        glUniform1f(locInner_nmb, inner_nmb);
+        glUniform1f(locOuter_nmb, outer_nmb);
+        glUniformMatrix4fv (locModel, false,
+                new Mat4Scale(1).floatArray());
         glPatchParameteri(GL_PATCH_VERTICES, 3);
         buffers.draw(GL_PATCHES, shaderProgram);
 /*
@@ -344,102 +328,24 @@ public class Renderer extends AbstractRenderer{
                             lineString="[Line]";
                         }
                         break;
-                    case GLFW_KEY_U:
-                        if(rot1B){
-                            rot1B=false;
-                            rot1String="[Off]";
-                        }else{
-                            rot1B=true;
-                            rot1String="[On]";
-                        }
+                    case GLFW_KEY_O:
+                        outer_nmb++;
                         break;
                     case GLFW_KEY_I:
-                        if(rotLightB){
-                            rotLightB=false;
-                            rotLString="[Off]";
-                        }else{
-                            rotLightB=true;
-                            rotLString="[On]";
-                        }
-                        break;
-                    case GLFW_KEY_P:
-                        if(persp){
-                            persp=false;
-                            projString="[Ortho]";
-                        }else{
-                            persp=true;
-                            projString="[Persp]";
-                        }
-                        break;
-                    case GLFW_KEY_1:
-                        mode=1;
-                        modeString="[Texture]";
-                        break;
-                    case GLFW_KEY_2:
-                        mode=2;
-                        modeString="[Normal]";
-                        break;
-                    case GLFW_KEY_3:
-                        mode=3;
-                        modeString="[TextureCoord]";
-                        break;
-                    case GLFW_KEY_4:
-                        mode=4;
-                        modeString="[VertexColor]";
-                        break;
-                    case GLFW_KEY_5:
-                        mode=5;
-                        modeString="[DepthColor]";
-                        break;
-                    case GLFW_KEY_6:
-                        mode=6;
-                        modeString="[Color]";
-                        break;
-                    case GLFW_KEY_7:
-                        mode=7;
-                        modeString="[Per Vertex] (grid 10x10)";
-                        break;
-                    case GLFW_KEY_8:
-                        mode=8;
-                        modeString="[Per Pixel] (grid 10x10)";
-                        break;
-                    case GLFW_KEY_H:
-                        if(blinn_phong==1){
-                            blinn_phongS="[Off]";
-                            blinn_phong=0;
-                        }else{
-                            blinn_phongS="[On]";
-                            blinn_phong=1;
-                        }
+                        inner_nmb++;
                         break;
                     case GLFW_KEY_K:
-                        if(spotlight==1){
-                            spotlightString="[Off]";
-                            spotlight=0;
-                        }else{
-                            spotlightString="[On]";
-                            spotlight=1;
+                        if(outer_nmb>1){
+                            outer_nmb--;
                         }
                         break;
                     case GLFW_KEY_J:
-                        if(attenuation==1){
-                            attenuationString="[Off]";
-                            attenuation=0;
-                        }else{
-                            attenuationString="[On]";
-                            attenuation=1;
+                        if(inner_nmb>=1){
+                            inner_nmb--;
                         }
+
                         break;
-                    case GLFW_KEY_UP:
-                        if(rotLSpeedBonus<=0.1){
-                            rotLSpeedBonus+=0.005;
-                        }
-                        break;
-                    case GLFW_KEY_DOWN:
-                        if(rotLSpeedBonus>=0.005){
-                            rotLSpeedBonus-=0.005;
-                        }
-                        break;
+
                 }
             }
         }

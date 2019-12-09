@@ -5,15 +5,17 @@ layout (vertices = 3) out;
 layout(location = 1) in vec3 inColor[];
 layout(location = 1) out vec3 outColor[];
 
-uniform float time;
+uniform float inner_nmb;
+uniform float outer_nmb;
 void main(void){
 
     if (gl_InvocationID == 0){
-        gl_TessLevelInner[0] = time;
+        gl_TessLevelInner[0] = inner_nmb;//1.0;
+
         //gl_TessLevelInner[1] = 2.0;
-        gl_TessLevelOuter[0] = 4.0;
-        gl_TessLevelOuter[1] = 2.0;
-        gl_TessLevelOuter[2] = 3.0;
+        gl_TessLevelOuter[0] = outer_nmb; //1.0;
+        gl_TessLevelOuter[1] = outer_nmb; //1.0;
+        gl_TessLevelOuter[2] = outer_nmb; //1.0;
         //gl_TessLevelOuter[3] = 5.0;
     }
   

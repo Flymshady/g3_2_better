@@ -452,6 +452,7 @@ public class Renderer extends AbstractRenderer{
             }
         }
     };
+
     @Override
     public GLFWKeyCallback getKeyCallback() {
         return keyCallback;

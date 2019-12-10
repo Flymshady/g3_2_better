@@ -104,7 +104,7 @@ public class Renderer extends AbstractRenderer{
         locSpotlight =  glGetUniformLocation(shaderProgram, "spotlight");
         locLightVP = glGetUniformLocation(shaderProgram, "lightViewProjection");
         locAttenuation=glGetUniformLocation(shaderProgram, "attenuation");
-        buffers = GridFactory.generateGrid(10,10);
+        buffers = GridFactory.generateGrid(20,20);
         renderTarget = new OGLRenderTarget(1024,1024);
         modeLoc =  glGetUniformLocation(shaderProgram, "mode");
         viewer = new OGLTexture2D.Viewer();
@@ -437,10 +437,19 @@ public class Renderer extends AbstractRenderer{
     private GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
         @Override
         public void invoke(long window, double dx, double dy) {
-            if (dy < 0)
+            if (dy < 0) {
                 camera = camera.mulRadius(1.1f);
-            else
+                if(outer_nmb>1) {
+                    inner_nmb--;
+                    outer_nmb--;
+                }
+
+            }
+            else {
                 camera = camera.mulRadius(0.9f);
+                inner_nmb++;
+                outer_nmb++;
+            }
         }
     };
     @Override

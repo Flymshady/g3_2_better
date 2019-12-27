@@ -1,26 +1,22 @@
 #version 440
-
-//layout(lines) in;
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 100) out;
-
-
 layout(location = 1) in vec3 inColor[];
 layout(location = 1) out vec3 outColor;
 
 void emit (vec4 v){
- float off=0.02;
-	gl_Position = v + vec4(off, -off, 0.0, 0.0);
-    EmitVertex();
+	float offset=0.02;
+	gl_Position = v + vec4(offset, -offset, 0.0, 0.0);
+	EmitVertex();
 
-	gl_Position = v + vec4(-off, -off, 0.0, 0.0);
-    EmitVertex();
+	gl_Position = v + vec4(-offset, -offset, 0.0, 0.0);
+	EmitVertex();
 
-	gl_Position = v + vec4(off, off, 0.0, 0.0);
-    EmitVertex();
+	gl_Position = v + vec4(offset, offset, 0.0, 0.0);
+	EmitVertex();
 
-	gl_Position = v + vec4(-off, off, 0.0, 0.0);
-    EmitVertex();
+	gl_Position = v + vec4(-offset, offset, 0.0, 0.0);
+	EmitVertex();
 
 	EndPrimitive();
 }

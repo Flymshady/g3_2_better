@@ -1,8 +1,8 @@
 #version 440
-layout(location = 2) in vec3 inColor; // vstup z vertex bufferu
-layout(location = 1) in vec2 inPosition; // vstup z vertex bufferu
+layout(location = 2) in vec3 inColor;
+layout(location = 1) in vec2 inPosition;
 
-layout(location = 1) out vec3 vsColor; // vystup do dalsich casti retezce
+layout(location = 1) out vec3 vsColor;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -59,5 +59,4 @@ void main() {
 
 	vertColor=vec3(normal.xyz);
 	vsColor = vertColor;
-	//vsColor = inColor*(gl_VertexID);
-} 
+}

@@ -135,7 +135,14 @@ public class Renderer extends AbstractRenderer{
         glUniform1f(locOuter_nmb, outer_nmb);
         glUniformMatrix4fv (locModel, false,
                 new Mat4Scale(1).floatArray());
-        glPatchParameteri(GL_PATCH_VERTICES, 3);
+
+        glPatchParameteri(GL_PATCH_VERTICES, 1);
+        glBegin(GL_PATCHES);
+        glVertex4d(0.,0.,0.,.2);
+        glVertex4d(0., 1., 0.,.3);
+        glVertex4d(0.,0.,1.,.4);
+        glEnd();
+        glPatchParameteri(GL_PATCH_VERTICES, 1);
         buffers.draw(GL_PATCHES, shaderProgram);
 
     }

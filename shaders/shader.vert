@@ -6,26 +6,14 @@ layout(location = 1) out vec3 vsColor;
 
 uniform mat4 view;
 uniform mat4 projection;
-uniform float time;
-uniform mat4 lightViewProjection;
-uniform float type;
 uniform mat4 model;
-uniform vec3 lightPos;
 uniform int mode;
-
 
 out vec3 vertColor;
 out vec3 normal;
-out vec3 light;
-out vec3 viewDirection;
-out vec4 depthTextureCoord;
-out vec2 texCoord;
-out vec3 depthColor;
 out vec4 pos4;
-out float intensity;
-out float dist;
 
-vec3 getSun(vec2 vec){
+vec3 getSphere(vec2 vec){
 	float az = vec.x * 3.14;
 	float ze = vec.y * 3.14 / 2;
 	float r = 1;
@@ -36,11 +24,11 @@ vec3 getSun(vec2 vec){
 	return vec3(x, y, z);
 }
 
-vec3 getSunNormal(vec2 vec){
-	vec3 u = getSun(vec+vec2(0.001, 0))
-	- getSun(vec-vec2(0.001,0));
-	vec3 v = getSun(vec+vec2(0, 0.001))
-	- getSun(vec-vec2(0, 0.001));
+vec3 getSphereNormal(vec2 vec){
+	vec3 u = getSphere(vec+vec2(0.001, 0))
+	- getSphere(vec-vec2(0.001,0));
+	vec3 v = getSphere(vec+vec2(0, 0.001))
+	- getSphere(vec-vec2(0, 0.001));
 	return cross(u,v);
 }
 
@@ -48,15 +36,12 @@ vec3 getSunNormal(vec2 vec){
 
 void main() {
 
-
-
 	vec2 position = inPosition;
 	position = inPosition * 2 - 1;
-	pos4 = model*vec4(getSun(position), 1.0);
+	pos4 = model*vec4(getSphere(position), 1.0);
 	gl_Position = projection * view * pos4;
-	normal= normalize(getSunNormal(position));
+	normal= normalize(getSphereNormal(position));
 	normal=inverse(transpose(mat3(view)* mat3(model)))*normal;
-
 	vertColor=vec3(normal.xyz);
 	vsColor = vertColor;
 }

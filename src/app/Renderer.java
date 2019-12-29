@@ -37,12 +37,12 @@ public class Renderer extends AbstractRenderer{
     private boolean persp=true;
     private int mode=1;
     private int modeLoc;
-    private String modeString="geom & tessel";
+    private String modeString="tessel";
     private String projString = "[Perps]";
-    private String lineString="[Fill]";
+    private String lineString="[Line]";
     double ox, oy;
     boolean mouseButton1 = false;
-    private boolean line = false;
+    private boolean line = true;
     private int inner_nmb = 1;
     private int outer_nmb = 1;
     private int locInner_nmb, locOuter_nmb;
@@ -53,7 +53,7 @@ public class Renderer extends AbstractRenderer{
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
 
-        shaderProgram = ShaderUtils.loadProgram("/shader");
+        shaderProgram = ShaderUtils.loadProgram("/shader.vert", "/shader.frag", null, "/shader.tesc", "/shader.tese", null);
         locView = glGetUniformLocation(shaderProgram, "view");
         locProjection = glGetUniformLocation(shaderProgram, "projection");
 
@@ -82,10 +82,10 @@ public class Renderer extends AbstractRenderer{
 
         if(modeChange) {
             if (mode == 1) {
-                shaderProgram = ShaderUtils.loadProgram("/shader.vert", "/shader.frag", "/shader.geom", "/shader.tesc", "/shader.tese", null);
+                shaderProgram = ShaderUtils.loadProgram("/shader.vert", "/shader.frag", null, "/shader.tesc", "/shader.tese", null);
             }
             if (mode == 2) {
-                shaderProgram = ShaderUtils.loadProgram("/shader.vert", "/shader.frag", null, "/shader.tesc", "/shader.tese", null);
+                shaderProgram = ShaderUtils.loadProgram("/shader.vert", "/shader.frag", "/shader.geom", "/shader.tesc", "/shader.tese", null);
             }
             modeChange=false;
         }
@@ -136,13 +136,7 @@ public class Renderer extends AbstractRenderer{
         glUniformMatrix4fv (locModel, false,
                 new Mat4Scale(1).floatArray());
 
-        glPatchParameteri(GL_PATCH_VERTICES, 1);
-        glBegin(GL_PATCHES);
-        glVertex4d(0.,0.,0.,.2);
-        glVertex4d(0., 1., 0.,.3);
-        glVertex4d(0.,0.,1.,.4);
-        glEnd();
-        glPatchParameteri(GL_PATCH_VERTICES, 1);
+        glPatchParameteri(GL_PATCH_VERTICES, 3);
         buffers.draw(GL_PATCHES, shaderProgram);
 
     }
@@ -297,7 +291,7 @@ public class Renderer extends AbstractRenderer{
         @Override
         public void invoke(long window, double dx, double dy) {
             if (dy < 0) {
-                camera = camera.mulRadius(1.1f);
+                camera = camera.mulRadius(1.05f);
                 if(outer_nmb>1) {
                     inner_nmb--;
                     outer_nmb--;
@@ -305,7 +299,7 @@ public class Renderer extends AbstractRenderer{
 
             }
             else {
-                camera = camera.mulRadius(0.9f);
+                camera = camera.mulRadius(0.95f);
                 inner_nmb++;
                 outer_nmb++;
             }

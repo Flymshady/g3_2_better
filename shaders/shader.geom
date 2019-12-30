@@ -8,21 +8,16 @@ void emit (vec4 v){
 	float offset=0.02;
 	gl_Position = v + vec4(offset, -offset, 0.0, 0.0);
 	EmitVertex();
-
 	gl_Position = v + vec4(-offset, -offset, 0.0, 0.0);
 	EmitVertex();
-
 	gl_Position = v + vec4(offset, offset, 0.0, 0.0);
 	EmitVertex();
-
 	gl_Position = v + vec4(-offset, offset, 0.0, 0.0);
 	EmitVertex();
-
 	EndPrimitive();
 }
 
 void main() {
-
 	outColor = inColor[0];
 	emit(gl_in[0].gl_Position);
 	outColor = inColor[1];

@@ -52,11 +52,9 @@ public class Renderer extends AbstractRenderer{
         glClearColor(0.1f, 0.1f, 0.1f, 1);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
-
         shaderProgram = ShaderUtils.loadProgram("/shader.vert", "/shader.frag", null, "/shader.tesc", "/shader.tese", null);
         locView = glGetUniformLocation(shaderProgram, "view");
         locProjection = glGetUniformLocation(shaderProgram, "projection");
-
         locInner_nmb =  glGetUniformLocation(shaderProgram, "inner_nmb");
         locOuter_nmb =  glGetUniformLocation(shaderProgram, "outer_nmb");
         locModel = glGetUniformLocation(shaderProgram, "model");
@@ -73,10 +71,7 @@ public class Renderer extends AbstractRenderer{
 
         projection = new Mat4PerspRH(Math.PI / 3,
                 LwjglWindow.HEIGHT / (float) LwjglWindow.WIDTH, 1, 50);
-
         projectionOH= new Mat4OrthoRH(4, 3, 1,50);
-
-
     }
     public void display(){
 
@@ -90,21 +85,19 @@ public class Renderer extends AbstractRenderer{
             modeChange=false;
         }
 
-
         renderFromViewer();
 
         textRenderer.clear();
-        String text = "Camera - WSAD, L_SHIFT, L_CTRL, Q, E, SPACE, LMB, Scroll";
-        String text1 = "Fill/Line - L : "+lineString+"; Inner_nmb "+inner_nmb+"; Outer_nmb "+outer_nmb;
+        String text = "Camera - WSAD, L_SHIFT, L_CTRL, Q, E, SPACE, LMB";
+        String text1 = "Fill/Line - L : "+lineString+"; Scroll -> Inner_nmb "+inner_nmb+"; Outer_nmb "+outer_nmb;
         String text2 =  "Mode - M: "+mode+" = "+modeString;
         String text3 = "Persp/Orto projection - P: "+projString+"; Resizable window";
         textRenderer.addStr2D(3, height-3, text);
-        textRenderer.addStr2D(3, height-15, text1);
-       // textRenderer.addStr2D(3, height-27, text3);
+        textRenderer.addStr2D(3, height-15, text3);
+        textRenderer.addStr2D(3, height-27, text1);
         textRenderer.addStr2D(3, height-39, text2);
         textRenderer.addStr2D(width-170, height-3, "Štěpán Cellar - PGRF3 - 2019");
         textRenderer.draw();
-
     }
 
     private void renderFromViewer() {
@@ -121,7 +114,6 @@ public class Renderer extends AbstractRenderer{
         glClearColor(0.5f,0f,0f,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
         glUniformMatrix4fv(locView, false, camera.getViewMatrix().floatArray());
         if(persp) {
             glUniformMatrix4fv(locProjection, false, projection.floatArray());
@@ -129,16 +121,12 @@ public class Renderer extends AbstractRenderer{
             glUniformMatrix4fv(locProjection, false, projectionOH.floatArray());
         }
 
-
-
         glUniform1f(locInner_nmb, inner_nmb);
         glUniform1f(locOuter_nmb, outer_nmb);
         glUniformMatrix4fv (locModel, false,
                 new Mat4Scale(1).floatArray());
-
         glPatchParameteri(GL_PATCH_VERTICES, 3);
         buffers.draw(GL_PATCHES, shaderProgram);
-
     }
 
     private GLFWKeyCallback   keyCallback = new GLFWKeyCallback() {
@@ -199,7 +187,6 @@ public class Renderer extends AbstractRenderer{
                         if(inner_nmb>=1){
                             inner_nmb--;
                         }
-
                         break;
                     case GLFW_KEY_M:
                         if (mode == 1) {
@@ -284,8 +271,6 @@ public class Renderer extends AbstractRenderer{
             }
         }
     };
-
-
 
     private GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
         @Override
